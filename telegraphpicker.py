@@ -1,7 +1,7 @@
 #!/usr/bin/python 
 # -*- coding: cp1252 -*-
 # Telegraph Fantasy Football Team Picker
-# version 1.2.0 (12 August 2010)
+# version 1.2.1 (11 March 2011)
 # by Ian Renton and Mark Harris
 # For details, see http://www.onlydreaming.net/software/telegraph-fantasy-football-team-picker
 # This code is released under the GPLv3 licence (http://www.gnu.org/licenses/gpl.html).
@@ -108,7 +108,7 @@ class TeamPicker:
     def set_initial_text(self):
         # Print header
         introText = "<h2>Optimum Telegraph Fantasy Football Team</h2><p style=\"font-weight:bold\">Generated on " + datetime.datetime.now().strftime("%A %d %B %Y at %H:%M:%S.") + "</p>"
-        introText = introText + "<p>Created using Telegraph Fantasy Football Team Picker, version 1.2.0 (12 August 2010), by Ian Renton and Mark Harris.<br>"
+        introText = introText + "<p>Created using Telegraph Fantasy Football Team Picker, version 1.2.1 (11 March 2011), by Ian Renton and Mark Harris.<br>"
         introText = introText + "For details and source code, see <a href=\"http://www.onlydreaming.net/software/telegraph-fantasy-football-team-picker\">http://www.onlydreaming.net/software/telegraph-fantasy-football-team-picker</a></p>"
         self.displayUpdate(introText)
 
@@ -251,49 +251,56 @@ class TeamPicker:
             strikerChoices2 = list(nchoosek(players["Striker"],2))
             strikerChoices3 = list(nchoosek(players["Striker"],3))
 
-            # To reduce the number of combinations, we just pick the one goalkeeper
-            # who provides best value for money rather than searching through them all.
-            players["Goalkeeper"].sort(lambda x, y: cmp(y.value, x.value))
-            goalkeeper = players["Goalkeeper"][0]
-
-            # For each combination of defenders, we calculate their combined price
-            # and combined points totals.
-
-            # Create two functions that, given a list of permutations of players, will return a list of prices of those players in the same order.
-            # Er... I guess if you're not up on your functional programming, this must look a bit hideous...
-            prices = lambda permutations: reduce(lambda total, player: total + player.price, permutations, 0)
-            points = lambda permutations: reduce(lambda total, player: total + player.points, permutations, 0)
-            #Sorry! Having those simplifies the next bit dramatically though:
-            defChoicesPrice3 = map(prices, defenderChoices3)
-            defChoicesPoints3 = map(points, defenderChoices3)
-            defChoicesPrice4 = map(prices, defenderChoices4)
-            defChoicesPoints4 = map(points, defenderChoices4)
-
-            # Same for the midfielders.
-            midChoicesPrice3 = map(prices, midfielderChoices3)
-            midChoicesPoints3 = map(points, midfielderChoices3)            
-            midChoicesPrice4 = map(prices, midfielderChoices4)
-            midChoicesPoints4 = map(points, midfielderChoices4)            
-            midChoicesPrice5 = map(prices, midfielderChoices5)
-            midChoicesPoints5 = map(points, midfielderChoices5)
-
-            # Same for the strikers.
-            strChoicesPrice1 = map(prices, strikerChoices1)
-            strChoicesPoints1 = map(points, strikerChoices1)            
-            strChoicesPrice2 = map(prices, strikerChoices2)
-            strChoicesPoints2 = map(points, strikerChoices2)         
-            strChoicesPrice3 = map(prices, strikerChoices3)
-            strChoicesPoints3 = map(points, strikerChoices3)
-
             # If we have too many iterations to be possible in sensible time, go back and reduce
             # thresholdDivisor until we have something sensible.  Assume the 442 formation is pretty representative.
             totalIterations = len(defenderChoices4) * len(midfielderChoices4) * len(strikerChoices2)
             print thresholdDivisor
             print totalIterations
-            if (totalIterations <= 15000000):
+            if (totalIterations <= 3000000):
                 sensibleDataSet = 1
             else:
-                thresholdDivisor = thresholdDivisor - 0.05
+                n = 0.1
+                if (thresholdDivisor < 2.8):
+                    n = 0.05
+                if (thresholdDivisor < 1.8):
+                    n = 0.05
+                if (thresholdDivisor < 1.3):
+                    n = 0.025
+                thresholdDivisor = thresholdDivisor - n
+
+        # To reduce the number of combinations, we just pick the one goalkeeper
+        # who provides best value for money rather than searching through them all.
+        players["Goalkeeper"].sort(lambda x, y: cmp(y.value, x.value))
+        goalkeeper = players["Goalkeeper"][0]
+
+        # For each combination of defenders, we calculate their combined price
+        # and combined points totals.
+
+        # Create two functions that, given a list of permutations of players, will return a list of prices of those players in the same order.
+        # Er... I guess if you're not up on your functional programming, this must look a bit hideous...
+        prices = lambda permutations: reduce(lambda total, player: total + player.price, permutations, 0)
+        points = lambda permutations: reduce(lambda total, player: total + player.points, permutations, 0)
+        #Sorry! Having those simplifies the next bit dramatically though:
+        defChoicesPrice3 = map(prices, defenderChoices3)
+        defChoicesPoints3 = map(points, defenderChoices3)
+        defChoicesPrice4 = map(prices, defenderChoices4)
+        defChoicesPoints4 = map(points, defenderChoices4)
+
+        # Same for the midfielders.
+        midChoicesPrice3 = map(prices, midfielderChoices3)
+        midChoicesPoints3 = map(points, midfielderChoices3)            
+        midChoicesPrice4 = map(prices, midfielderChoices4)
+        midChoicesPoints4 = map(points, midfielderChoices4)            
+        midChoicesPrice5 = map(prices, midfielderChoices5)
+        midChoicesPoints5 = map(points, midfielderChoices5)
+
+        # Same for the strikers.
+        strChoicesPrice1 = map(prices, strikerChoices1)
+        strChoicesPoints1 = map(points, strikerChoices1)            
+        strChoicesPrice2 = map(prices, strikerChoices2)
+        strChoicesPoints2 = map(points, strikerChoices2)         
+        strChoicesPrice3 = map(prices, strikerChoices3)
+        strChoicesPoints3 = map(points, strikerChoices3)
             
         # Now we iterate through all possible choices for defenders, midfielders and
         # strikers.  In each case, we check to see if this set is better than the one
