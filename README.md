@@ -12,4 +12,4 @@ Since the 2012-2013 season, the Premier League Fantasy Football website has been
 08-09 Fantasy Football results prove famous football dude not really all that much better at this than inanimate lump of silicon!
 
 
-![](http://www.onlydreaming.net/files/TeamPicker/mourinho.gif)
+![](http://ianrenton.com/software/mourinho.gif)
